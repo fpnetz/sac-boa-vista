@@ -387,12 +387,14 @@ const AUTH_URL = 'https://ep-floral-star-beuw3qet.neonauth.c-9.us-east-2.aws.neo
 const DATA_API = 'https://ep-floral-star-beuw3qet.apirest.c-9.us-east-2.aws.neon.tech/neondb/rest/v1';
 const usernameToEmail = u => `${u}@suporte.boavista`;
 
-/* ───────── Neon Auth (Managed Better Auth) + Data API, via fetch puro ───────── */
-function authHeaders(){ const t = localStorage.getItem('bv_session'); return t ? { 'Authorization':'Bearer '+t } : {}; }
+/* ───────── Neon Auth (Managed Better Auth) + Data API, via fetch puro ─────────
+   A sessão usa o cookie HttpOnly definido pelo próprio Neon Auth (SameSite=None;
+   Secure; Partitioned), por isso toda chamada precisa de credentials:'include'. */
 async function authFetch(path, opts={}){
   const r = await fetch(AUTH_URL + path, {
     method: opts.method || 'GET',
-    headers:{ 'Content-Type':'application/json', ...authHeaders(), ...(opts.headers||{}) },
+    credentials: 'include',
+    headers:{ 'Content-Type':'application/json', ...(opts.headers||{}) },
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined
   });
   const out = await r.json().catch(()=>({}));
@@ -429,21 +431,20 @@ const rpcCall = (fn, args={}) => dataFetch(`/rpc/${fn}`, { method:'POST', body:a
 async function signIn(username, password){
   const out = await authFetch('/sign-in/email', { method:'POST', body:{ email: usernameToEmail(username), password } });
   if(!out?.token) throw new Error('Usuário ou senha incorretos.');
-  localStorage.setItem('bv_session', out.token); _jwt = null; _jwtExp = 0;
+  _jwt = null; _jwtExp = 0;
   return out.user;
 }
 async function verifyPassword(username, password){
-  try{ const r = await fetch(AUTH_URL + '/sign-in/email', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ email: usernameToEmail(username), password }) }); return r.ok; }
+  try{ const r = await fetch(AUTH_URL + '/sign-in/email', { method:'POST', credentials:'include', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ email: usernameToEmail(username), password }) }); return r.ok; }
   catch(_){ return false; }
 }
 async function signOutAuth(){
   try{ await authFetch('/sign-out', { method:'POST', body:{} }); }catch(_){}
-  localStorage.removeItem('bv_session'); _jwt = null; _jwtExp = 0;
+  _jwt = null; _jwtExp = 0;
 }
 async function getSessionUser(){
-  if(!localStorage.getItem('bv_session')) return null;
   try{ const out = await authFetch('/get-session'); return out?.user || null; }
-  catch(_){ localStorage.removeItem('bv_session'); return null; }
+  catch(_){ return null; }
 }
 const adminApi = {
   createUser: (email,password,name) => authFetch('/admin/create-user', { method:'POST', body:{ email, password, name, role:'user' } }),
