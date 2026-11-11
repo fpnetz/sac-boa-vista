@@ -488,7 +488,7 @@ async function getSessionUser(){
   catch(_){ return null; }
 }
 const adminApi = {
-  createUser: (email,password,name) => authFetch('/admin/create-user', { method:'POST', body:{ email, password, name, role:'user' } }),
+  createUser: (email,password,name,authRole) => authFetch('/admin/create-user', { method:'POST', body:{ email, password, name, role:authRole==='admin'?'admin':'user' } }),
   setUserPassword: (userId,newPassword) => authFetch('/admin/set-user-password', { method:'POST', body:{ userId, newPassword } }),
   removeUser: (userId) => authFetch('/admin/remove-user', { method:'POST', body:{ userId } })
 };
@@ -1018,7 +1018,7 @@ const store = {
   async createUser({ user, name, role, password }){
     const email = usernameToEmail(user);
     let out;
-    try{ out = await adminApi.createUser(email, password, name); }
+    try{ out = await adminApi.createUser(email, password, name, role); }
     catch(e){ throw new Error(/already|exist/i.test(e.message||'') ? 'Este usuário já existe.' : (e.message || 'Não foi possível cadastrar.')); }
     const uid = out?.user?.id; if(!uid) throw new Error('Não foi possível cadastrar.');
     try{ await insertRow('profiles', { id:uid, username:user, name, role: role==='admin'?'admin':'atendente', created_by: me.user }); }
