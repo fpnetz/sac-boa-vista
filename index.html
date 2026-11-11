@@ -1176,7 +1176,7 @@ function start(){
   if(unsubT) unsubT();
   unsubT = store.watchTickets(list => { tickets = list; renderList(); refreshOpenHead(); tryOpenPending(); });
   if(unsubC) unsubC();
-  unsubC = store.watchCatalog(c => { catalog = c; renderList(); const ov = $('#catBody'); if(ov) renderCatalog(); });
+  unsubC = store.watchCatalog(c => { catalog = c; renderList(); const ov = $('#catBody'); if(ov && !(ov.contains(document.activeElement) && document.activeElement.matches('input,select'))) renderCatalog(); });
 }
 const titleName = n => n.toLowerCase().split(' ').filter(Boolean).map((w,i)=> (i>0 && ['de','da','do','dos','das'].includes(w)) ? w : w[0].toUpperCase()+w.slice(1)).slice(0,2).join(' ');
 
