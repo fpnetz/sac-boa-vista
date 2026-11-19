@@ -1837,7 +1837,12 @@ function openUsers(){
         try{ await store.setPassword(u, p); toast('Senha alterada.'); draw(); }catch(e){ toast(e?.message || 'Não foi possível alterar a senha.'); } };
     });
   };
-  unsub = store.watchUsers(l => { list = l.map(({id,...r}) => r); if(!body.contains(document.activeElement) || !document.activeElement.matches('input')) draw(); });
+  unsub = store.watchUsers(l => {
+    list = l.map(({id,...r}) => r);
+    const active = document.activeElement;
+    const typing = body.contains(active) && active.matches('input,select,textarea');
+    if(!typing && !editing) draw();
+  });
   if(!list.length) draw();
 }
 
