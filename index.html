@@ -161,7 +161,7 @@ tbody tr{cursor:pointer}
 tbody tr:hover{background:var(--surface-2)}
 .proto{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
 .city{color:var(--muted);white-space:nowrap}
-.contact{color:var(--muted);white-space:normal;overflow-wrap:anywhere}
+.contact{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
 .rep-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px}
 .rep-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 6px}
 .rep-tile{background:var(--surface-2);border-radius:10px;padding:10px 14px}
@@ -1240,12 +1240,8 @@ function renderList(){
   const cnt = {aberto:0, atendimento:0, analise:0, encerrado:0};
   base.forEach(t => { if(cnt[t.status]!==undefined) cnt[t.status]++; });
   const awaiting = base.filter(t => t.status!=='encerrado' && t.lastSide==='client').length;
-  const awaitingAdminN = base.filter(t => t.status!=='encerrado' && t.awaitingAdmin).length;
-  const awaitingGestorN = base.filter(t => t.status!=='encerrado' && t.awaitingGestor).length;
   $('#stats').innerHTML = STATUS_ORDER.map(k =>
-    `<button class="stat" data-st="${k}" aria-pressed="${f.status===k}"><span class="n">${cnt[k]}</span><span class="l"><span class="dot ${k}"></span>${STATUS_PLURAL[k]}</span></button>`).join('')
-    + `<div class="stat" style="cursor:default"><span class="n">${awaitingAdminN}</span><span class="l"><span class="dot" style="background:var(--violet)"></span>Aguardando administrador</span></div>`
-    + `<div class="stat" style="cursor:default"><span class="n">${awaitingGestorN}</span><span class="l"><span class="dot" style="background:var(--amber)"></span>Aguardando gestor</span></div>`;
+    `<button class="stat" data-st="${k}" aria-pressed="${f.status===k}"><span class="n">${cnt[k]}</span><span class="l"><span class="dot ${k}"></span>${STATUS_PLURAL[k]}</span></button>`).join('');
   const filtered = !!(f.d1 || f.d2 || f.type || f.city || q);
   $('#sub').textContent = filtered ? `${base.length} chamado${base.length===1?'':'s'} na seleção` + (awaiting ? ` · ${awaiting} aguardando resposta` : '')
     : (awaiting ? `${awaiting} chamado${awaiting>1?'s':''} aguardando resposta` : 'Nenhum chamado aguardando resposta');
@@ -1261,7 +1257,7 @@ function renderList(){
     <td class="proto">${esc(t.id)}</td>
     <td class="when">${t.createdAt ? dmyhm(t.createdAt) : '—'}</td>
     <td class="city">${esc(t.city || '—')}</td>
-    <td class="contact">${esc(t.contact || '—')}</td>
+    <td class="contact" title="${esc(t.contact || '')}">${esc(t.contact || '—')}</td>
     <td class="subj"><div class="s1">${t.priority==='urgente'?'<span class="pill flag mini" style="background:var(--red-soft);color:var(--red)">Urgente</span> ':''}${esc(t.subject)}${t.example?'<span class="ex">exemplo</span>':''}${t.awaitingAdmin?'<span class="pill flag mini">Aguardando administrador(a)</span>':''}${t.awaitingGestor?'<span class="pill flag mini">Aguardando gestor</span>':''}</div><div class="s2">${esc(t.lastPreview||'')}</div></td>
     <td><span class="pill type-${TYPE_SLUG[t.type]||'duvida'}">${esc(t.type)}</span></td>
     <td><span class="pill st st-${t.status}">${STATUS[t.status]||''}</span></td>
