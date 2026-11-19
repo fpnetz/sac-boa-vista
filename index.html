@@ -161,6 +161,7 @@ tbody tr{cursor:pointer}
 tbody tr:hover{background:var(--surface-2)}
 .proto{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
 .city{color:var(--muted);white-space:nowrap}
+.contact{color:var(--muted);white-space:normal;overflow-wrap:anywhere}
 .rep-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px}
 .rep-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 6px}
 .rep-tile{background:var(--surface-2);border-radius:10px;padding:10px 14px}
@@ -1178,7 +1179,7 @@ function start(){
       <button class="btn ghost" id="fx">Limpar filtros</button>
     </div>
     <div class="tbl-wrap"><table style="table-layout:fixed">
-      <colgroup><col style="width:11%"><col style="width:10%"><col style="width:9%"><col style="width:8%"><col style="width:21%"><col style="width:9%"><col style="width:9%"><col style="width:13%"><col style="width:10%"></colgroup>
+      <colgroup><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:11%"><col style="width:19%"><col style="width:9%"><col style="width:9%"><col style="width:13%"><col style="width:10%"></colgroup>
       <thead><tr><th>Protocolo</th><th>Registrado em</th><th>Cidade</th><th>Contato</th><th>Assunto</th><th>Tipo</th><th>Status</th><th>Última mensagem</th><th></th></tr></thead>
       <tbody id="rows"></tbody></table><div class="empty" id="empty" hidden>Nenhum chamado encontrado.</div></div>
   </div>`;
@@ -1260,7 +1261,7 @@ function renderList(){
     <td class="proto">${esc(t.id)}</td>
     <td class="when">${t.createdAt ? dmyhm(t.createdAt) : '—'}</td>
     <td class="city">${esc(t.city || '—')}</td>
-    <td class="city">${esc(t.contact || '—')}</td>
+    <td class="contact">${esc(t.contact || '—')}</td>
     <td class="subj"><div class="s1">${t.priority==='urgente'?'<span class="pill flag mini" style="background:var(--red-soft);color:var(--red)">Urgente</span> ':''}${esc(t.subject)}${t.example?'<span class="ex">exemplo</span>':''}${t.awaitingAdmin?'<span class="pill flag mini">Aguardando administrador(a)</span>':''}${t.awaitingGestor?'<span class="pill flag mini">Aguardando gestor</span>':''}</div><div class="s2">${esc(t.lastPreview||'')}</div></td>
     <td><span class="pill type-${TYPE_SLUG[t.type]||'duvida'}">${esc(t.type)}</span></td>
     <td><span class="pill st st-${t.status}">${STATUS[t.status]||''}</span></td>
